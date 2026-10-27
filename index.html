@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Israel Election Turnout 2026 vs Previous</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e7e9ea;
+      --muted: #8b98a5;
+      --accent: #1d9bf0;
+      --highlight: #00ba7c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 0.5rem;
+      font-weight: 700;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+    .highlight-box {
+      background: linear-gradient(135deg, #1a2332 0%, #0d3b2e 100%);
+      border: 1px solid #00ba7c40;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      text-align: center;
+    }
+    .big-number {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--highlight);
+      margin: 0;
+    }
+    .big-label {
+      font-size: 1.1rem;
+      color: var(--muted);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .chart-container {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    canvas {
+      max-height: 480px;
+    }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #2f3336;
+    }
+    .note {
+      background: #1a2332;
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 1.6rem; }
+      .big-number { font-size: 2.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Israel Election Turnout</h1>
+      <p class="subtitle">2026 Knesset elections — early voting compared with previous elections</p>
+    </header>
+
+    <div class="highlight-box">
+      <p class="big-number">16.68%</p>
+      <p class="big-label">Turnout by 10:00 a.m. on 27 October 2026</p>
+      <p style="margin:0.5rem 0 0; color:#8b98a5;">Highest at this hour since 1981 · ~1.22 million votes cast</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">+0.78pp</div>
+        <div class="stat-label">vs 2022 at 10:00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">31.5%</div>
+        <div class="stat-label">By noon (highest since 1977)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">30%</div>
+        <div class="stat-label">IDF turnout by 10:00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">7.33M</div>
+        <div class="stat-label">Eligible voters</div>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h2 style="margin-top:0; font-size:1.25rem;">Turnout by 10:00 a.m. — historical comparison</h2>
+      <canvas id="turnoutChart"></canvas>
+    </div>
+
+    <div class="note">
+      Source: Central Elections Committee historical data and 2026 live updates. 2026 figures are preliminary as of election day morning/afternoon. Final turnout will be higher.
+    </div>
+
+    <footer>
+      Data compiled from official CEC records and contemporaneous reporting. Public site generated for easy sharing.
+    </footer>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('turnoutChart').getContext('2d');
+    const data = {
+      labels: ['1973','1977','1981','1984','1988','1992','1996','1999','2001','2003','2006','2009','2013','2015','2019a','2019b','2020','2021','2022','2026'],
+      datasets: [{
+        label: 'Turnout by 10:00 (%)',
+        data: [21.8,16.8,17.0,15.6,14.8,14.0,14.3,14.2,11.1,10.1,9.9,10.3,11.4,14.3,12.9,15.0,14.5,14.8,15.9,16.68],
+        backgroundColor: data => data.dataIndex === 19 ? '#00ba7c' : '#1d9bf0',
+        borderColor: data => data.dataIndex === 19 ? '#00ba7c' : '#1d9bf0',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    };
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.parsed.y.toFixed(2) + '%'
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 25,
+            ticks: { color: '#8b98a5', callback: v => v + '%' },
+            grid: { color: '#2f3336' }
+          },
+          x: {
+            ticks: { color: '#8b98a5', maxRotation: 45, minRotation: 0 },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
